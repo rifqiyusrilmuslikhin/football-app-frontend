@@ -110,10 +110,8 @@
         const home = document.getElementById('home_team').value;
         const away = document.getElementById('away_team').value;
         const home_score = document.getElementById('home_score').value;
-        // for(home_score === 0; )
         const away_score = document.getElementById('away_score').value;
 
-        // Melakukan POST request ke API
         fetch('http://localhost:8000/api/matches', {
           method: 'POST',
           headers: {
@@ -136,7 +134,6 @@
           .catch(error => console.error(error));
       });
 
-      // Mengambil data dari endpoint API dan menampilkannya dalam tabel
       fetch('http://localhost:8000/api/standings')
         .then(response => response.json())
         .then(data => {
