@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Football</title>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Input Klub</h1>
+    <form id="form-club" method="post">
+      <label for="nama_klub">Nama Klub:</label>
+      <input type="text" id="nama_klub" name="nama_klub">
+      <label for="asal_kota">Asal Kota:</label>
+      <input type="text" id="asal_kota" name="asal_kota">
+      <button type="submit">Kirim</button>
+    </form>
+    <h1>Input Pertandingan</h1>
+    <form id="form-match" method="post">
+        <select id="home_team"></select>
+        <label for="home_score">Home Skor:</label>
+        <input type="text" id="home_score" name="home_score">
+        <label for="away_score">Away Skor:</label>
+        <input type="text" id="away_score" name="away_score">
+        <select id="away_team"></select>
+        <button type="submit">Kirim</button>
+    </form>
+    <h1>Hasil Klasemen</h1>
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>Nama Klub</th>
+          <th>Main</th>
+          <th>Menang</th>
+          <th>Imbang</th>
+          <th>Kalah</th>
+          <th>Memasukkan</th>
+          <th>Kemasukan</th>
+          <th>Point</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <script>
+      const form_club = document.querySelector('#form-club');
+
+      form_club.addEventListener('submit', event => {
+        event.preventDefault();
+        const url = 'http://localhost:8000/api/clubs';
+        const nama_klub = document.getElementById('nama_klub').value
+        const asal_kota = document.getElementById('asal_kota').value
+
+        // Melakukan POST request ke API
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            Accept: 'application.json',
+            'Content-Type': 'application/json'
+        },
+          body: JSON.stringify({
+            nama_klub: nama_klub,
+            asal_kota: asal_kota,
+          })
+        })
+          .then(response => response.json())
+          .then(data => {
+            if(confirm(data.message)){
+              window.location.reload();
+              }
+            })
+          .catch(error => console.error(error));
+      });
+
+      const home = document.querySelector('#home_team');
+
+    fetch('http://localhost:8000/api/clubs')
+    .then(response => response.json())
+    .then(data => {
+        data.data.clubs.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.text = item.nama_klub;
+        home.add(option);
+        });
+    })
+    .catch(error => console.log(error));
+
+    const away = document.querySelector('#away_team');
+
+    fetch('http://localhost:8000/api/clubs')
+    .then(response => response.json())
+    .then(data => {
+        data.data.clubs.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.text = item.nama_klub;
+        away.add(option);
+        });
+    })
+    .catch(error => console.log(error));
+
+      const form_match = document.querySelector('#form-match');
+
+      form_match.addEventListener('submit', event => {
+        event.preventDefault();
+        const home = document.getElementById('home_team').value;
+        const away = document.getElementById('away_team').value;
+        const home_score = document.getElementById('home_score').value;
+        // for(home_score === 0; )
+        const away_score = document.getElementById('away_score').value;
+
+        // Melakukan POST request ke API
+        fetch('http://localhost:8000/api/matches', {
+          method: 'POST',
+          headers: {
+            Accept: 'application.json',
+            'Content-Type': 'application/json'
+        },
+          body: JSON.stringify({
+            home_team: home,
+            away_team: away,
+            home_score: Number(home_score),
+            away_score: Number(away_score)
+          })
+        })
+          .then(response => response.json())
+          .then(data => {
+            if(confirm(data.message)){
+              window.location.reload();
+              }
+            })
+          .catch(error => console.error(error));
+      });
+
+      // Mengambil data dari endpoint API dan menampilkannya dalam tabel
+      fetch('http://localhost:8000/api/standings')
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.querySelector('#data-table tbody');
+          data.data.standings.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.nama_klub}</td>
+              <td>${item.played}</td>
+              <td>${item.win}</td>
+              <td>${item.draw}</td>
+              <td>${item.lost}</td>
+              <td>${item.goals_for}</td>
+              <td>${item.goals_against}</td>
+              <td>${item.points}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+        })
+        .catch(error => console.error(error));
+    </script>
+  </body>
+</html>
